@@ -24,8 +24,27 @@ export async function GET() {
   }
 }
 
+export async function POST() {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await generateAlerts();
+
+    return NextResponse.json({ message: "Alerts generated successfully" });
+  } catch (error) {
+    console.error("Error generating alerts:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 // Function to generate alerts (can be called periodically)
-export async function generateAlerts() {
+async function generateAlerts() {
   try {
     // Low stock alerts
     const productsWithStocks = await prisma.product.findMany({
