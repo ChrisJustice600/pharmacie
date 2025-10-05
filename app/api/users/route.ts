@@ -4,9 +4,28 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const currentUser = await getUser();
-    if (!currentUser) {
+    const sessionUser = await getUser();
+    if (!sessionUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Get the complete user from database including role
+    const currentUser = await prisma.user.findUnique({
+      where: { id: sessionUser.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        emailVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        image: true,
+      },
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Only allow GERANT to view users

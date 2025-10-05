@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default function VerifyEmail() {
+function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -91,5 +91,24 @@ export default function VerifyEmail() {
         </Button>
       </CardContent>
     </Card>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <Card className="w-full max-w-md mx-auto mt-10">
+      <CardHeader>
+        <CardTitle>Chargement...</CardTitle>
+        <CardDescription>Veuillez patienter</CardDescription>
+      </CardHeader>
+    </Card>
+  );
+}
+
+export default function VerifyEmail() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <VerifyEmailForm />
+    </Suspense>
   );
 }

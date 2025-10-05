@@ -1,7 +1,7 @@
+import { generateAlerts } from "@/lib/alert-utils";
 import { getUser } from "@/lib/auth-server";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { generateAlerts } from "../alerts/route";
 
 export async function GET() {
   try {

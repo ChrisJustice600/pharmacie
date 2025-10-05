@@ -12,10 +12,10 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 
-export default function ResetPassword() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -84,5 +84,24 @@ export default function ResetPassword() {
         </form>
       </CardContent>
     </Card>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <Card className="w-full max-w-md mx-auto mt-10">
+      <CardHeader>
+        <CardTitle>Chargement...</CardTitle>
+        <CardDescription>Veuillez patienter</CardDescription>
+      </CardHeader>
+    </Card>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
