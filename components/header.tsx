@@ -17,10 +17,15 @@ import { Skeleton } from "./ui/skeleton";
 
 export const Header = () => {
   return (
-    <header className="flex items-center gap-4 px-4 py-2 border-b">
-      <Link href="/">App</Link>
-      <div className="flex-1"></div>
-      <Suspense fallback={<Skeleton className="h-19 w-20" />}>
+    <header className="flex items-center justify-between px-6 py-4 border-b bg-white shadow-sm relative z-40">
+      <div className="flex items-center gap-4">
+        {/* Mobile sidebar toggle is handled in sidebar component */}
+        <h1 className="text-xl font-semibold text-gray-900 md:hidden">
+          PharmaTrack
+        </h1>
+      </div>
+
+      <Suspense fallback={<Skeleton className="h-9 w-20" />}>
         <AuthButton />
       </Suspense>
     </header>

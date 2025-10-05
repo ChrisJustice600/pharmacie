@@ -15,7 +15,7 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String          @id
   name          String
   email         String
   emailVerified Boolean
@@ -24,7 +24,9 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
-  role          Role      @default(TRANSLATOR_EN)
+  role          Role            @default(EMPLOYE)
+  movements     StockMovement[]
+  sales         Sale[]
 
   @@unique([email])
   @@map("user")
@@ -75,9 +77,136 @@ model Verification {
   @@map("verification")
 }
 
+model Product {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  laboratory   String?
+  minStock     Int      @default(0)
+  sellingPrice Decimal? @db.Decimal(10, 2)
+  costPrice    Decimal? @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  stocks        Stock[]
+  movements     StockMovement[]
+  Alert         Alert[]
+  InventoryItem InventoryItem[]
+  saleItems     SaleItem[]
+}
+
+model Stock {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  expiration  DateTime
+  lotNumber   String?
+  supplier    String?
+  deliveryDoc String? // URL to PDF or image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StockMovement {
+  id        String       @id @default(uuid())
+  productId String
+  product   Product      @relation(fields: [productId], references: [id])
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  type      MovementType
+  quantity  Int
+  reason    String?
+  reference String? // ticket number, delivery note, etc.
+  createdAt DateTime     @default(now())
+}
+
+enum MovementType {
+  ENTRY
+  SALE
+  ADJUSTMENT
+  RETURN
+  EXPIRATION
+}
+
+model Alert {
+  id        String      @id @default(uuid())
+  productId String
+  product   Product     @relation(fields: [productId], references: [id])
+  type      AlertType
+  message   String
+  status    AlertStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+}
+
+enum AlertType {
+  LOW_STOCK
+  EXPIRY_SOON
+  EXPIRED
+}
+
+enum AlertStatus {
+  PENDING
+  RESOLVED
+}
+
+model InventorySession {
+  id        String          @id @default(uuid())
+  startedAt DateTime        @default(now())
+  endedAt   DateTime?
+  status    InventoryStatus @default(ONGOING)
+  items     InventoryItem[]
+}
+
+enum InventoryStatus {
+  ONGOING
+  COMPLETED
+}
+
+model InventoryItem {
+  id         String           @id @default(uuid())
+  sessionId  String
+  session    InventorySession @relation(fields: [sessionId], references: [id])
+  productId  String
+  product    Product          @relation(fields: [productId], references: [id])
+  countedQty Int
+  systemQty  Int
+  difference Int
+  adjustment Boolean          @default(false)
+}
+
+model Sale {
+  id            String     @id @default(uuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id])
+  total         Decimal    @db.Decimal(10, 2)
+  paymentMethod String     @default("cash")
+  status        SaleStatus @default(COMPLETED)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  items SaleItem[]
+}
+
+model SaleItem {
+  id        String  @id @default(uuid())
+  saleId    String
+  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  total     Decimal @db.Decimal(10, 2)
+}
+
+enum SaleStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
 enum Role {
-  ADMIN
-  TRANSLATOR_ES
-  TRANSLATOR_EN
-  USER
+  GERANT
+  EMPLOYE
+  AUDITEUR
 }
