@@ -16,6 +16,9 @@ const eslintConfig = [
       "react/no-unescaped-entities": 0,
     },
   },
+  {
+    ignores: ["lib/generated/**/*"],
+  },
 ];
 
 export default eslintConfig;
