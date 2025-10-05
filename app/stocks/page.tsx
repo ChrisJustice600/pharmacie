@@ -36,6 +36,7 @@ export default function StocksPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     productId: "",
     quantity: 0,
@@ -78,6 +79,7 @@ export default function StocksPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       const res = await fetch("/api/stocks", {
         method: "POST",
@@ -99,6 +101,8 @@ export default function StocksPage() {
       }
     } catch (error) {
       console.error("Error adding stock:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -213,11 +217,21 @@ export default function StocksPage() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button type="submit">Ajouter</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Ajout en cours...
+                    </>
+                  ) : (
+                    "Ajouter"
+                  )}
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowForm(false)}
+                  disabled={submitting}
                 >
                   Annuler
                 </Button>

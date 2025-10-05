@@ -38,6 +38,7 @@ export default function InventorySessionPage() {
   const [session, setSession] = useState<InventorySession | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [completing, setCompleting] = useState(false);
 
   const fetchSession = async () => {
     try {
@@ -112,6 +113,8 @@ export default function InventorySessionPage() {
       !confirm("Êtes-vous sûr de vouloir terminer cette session d'inventaire ?")
     )
       return;
+
+    setCompleting(true);
     try {
       const res = await fetch(`/api/inventory/${id}`, {
         method: "PATCH",
@@ -123,6 +126,8 @@ export default function InventorySessionPage() {
       }
     } catch (error) {
       console.error("Error completing session:", error);
+    } finally {
+      setCompleting(false);
     }
   };
 
@@ -169,9 +174,22 @@ export default function InventorySessionPage() {
               <Save className="h-4 w-4 mr-2" />
               Sauvegarder
             </Button>
-            <Button onClick={handleComplete} variant="outline">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Terminer
+            <Button
+              onClick={handleComplete}
+              variant="outline"
+              disabled={completing}
+            >
+              {completing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Finalisation...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Terminer
+                </>
+              )}
             </Button>
           </div>
         )}

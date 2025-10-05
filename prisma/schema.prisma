@@ -96,16 +96,16 @@ model Product {
 }
 
 model Stock {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   productId   String
-  product     Product  @relation(fields: [productId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
   quantity    Int
-  expiration  DateTime
+  expiration  DateTime?
   lotNumber   String?
   supplier    String?
   deliveryDoc String? // URL to PDF or image
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model StockMovement {

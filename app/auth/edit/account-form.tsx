@@ -12,8 +12,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient, signIn } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Github } from "lucide-react";
+import { Github, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -31,12 +32,15 @@ export function AccountForm(props: {
   defaultValues: z.infer<typeof SignInFormSchema>;
 }) {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
   const form = useForm<z.infer<typeof SignInFormSchema>>({
     resolver: zodResolver(SignInFormSchema),
     defaultValues: props.defaultValues,
   });
 
   async function onSubmit(values: SignInFormValues) {
+    setIsSubmitting(true);
     try {
       await authClient.updateUser(
         {
@@ -55,24 +59,31 @@ export function AccountForm(props: {
       );
     } catch {
       toast.error("Une erreur est survenue lors de la connexion");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   async function signInWithProvider(provider: providerEnum) {
-    await signIn.social(
-      {
-        provider: provider,
-        callbackURL: "/auth",
-      },
-      {
-        onSuccess: () => {
-          router.push("/auth");
+    setIsSigningIn(true);
+    try {
+      await signIn.social(
+        {
+          provider: provider,
+          callbackURL: "/auth",
         },
-        onError: (ctx: { error: { message: string } }) => {
-          toast.error(ctx.error.message);
-        },
-      }
-    );
+        {
+          onSuccess: () => {
+            router.push("/auth");
+          },
+          onError: (ctx: { error: { message: string } }) => {
+            toast.error(ctx.error.message);
+          },
+        }
+      );
+    } finally {
+      setIsSigningIn(false);
+    }
   }
 
   return (
@@ -108,7 +119,16 @@ export function AccountForm(props: {
           )}
         />
         <div className="flex flex-col gap-2">
-          <Button type="submit">Se connecter</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Mise à jour...
+              </>
+            ) : (
+              "Se connecter"
+            )}
+          </Button>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -124,9 +144,19 @@ export function AccountForm(props: {
             variant="outline"
             className="w-full"
             type="button"
+            disabled={isSigningIn}
           >
-            <Github className="mr-2 h-4 w-4" />
-            Continuer avec GitHub
+            {isSigningIn ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Connexion...
+              </>
+            ) : (
+              <>
+                <Github className="mr-2 h-4 w-4" />
+                Continuer avec GitHub
+              </>
+            )}
           </Button>
         </div>
       </form>

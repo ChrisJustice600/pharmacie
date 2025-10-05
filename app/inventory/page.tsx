@@ -23,6 +23,7 @@ interface InventorySession {
 export default function InventoryPage() {
   const [sessions, setSessions] = useState<InventorySession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
 
   const fetchSessions = async () => {
     try {
@@ -43,6 +44,7 @@ export default function InventoryPage() {
   }, []);
 
   const handleCreateSession = async () => {
+    setCreating(true);
     try {
       const res = await fetch("/api/inventory", { method: "POST" });
       if (res.ok) {
@@ -52,6 +54,8 @@ export default function InventoryPage() {
       }
     } catch (error) {
       console.error("Error creating inventory session:", error);
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -79,9 +83,18 @@ export default function InventoryPage() {
           </p>
         </div>
         {!ongoingSession && (
-          <Button onClick={handleCreateSession}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nouveau Inventaire
+          <Button onClick={handleCreateSession} disabled={creating}>
+            {creating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Création...
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4 mr-2" />
+                Nouveau Inventaire
+              </>
+            )}
           </Button>
         )}
       </div>

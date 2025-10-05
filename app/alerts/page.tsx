@@ -24,6 +24,7 @@ interface Alert {
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
 
   const fetchAlerts = async () => {
     try {
@@ -44,6 +45,7 @@ export default function AlertsPage() {
   }, []);
 
   const handleResolve = async (id: string) => {
+    setResolvingId(id);
     try {
       const res = await fetch(`/api/alerts/${id}`, {
         method: "PATCH",
@@ -55,6 +57,8 @@ export default function AlertsPage() {
       }
     } catch (error) {
       console.error("Error resolving alert:", error);
+    } finally {
+      setResolvingId(null);
     }
   };
 
@@ -176,9 +180,19 @@ export default function AlertsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleResolve(alert.id)}
+                  disabled={resolvingId === alert.id}
                 >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Résoudre
+                  {resolvingId === alert.id ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Résolution...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Résoudre
+                    </>
+                  )}
                 </Button>
               </div>
             ))}

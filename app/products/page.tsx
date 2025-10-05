@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit, Loader2, Plus, Trash2 } from "lucide-react";
+import { Edit, Loader2, Plus, Trash2, PackagePlus } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface Product {
@@ -22,6 +23,8 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -51,6 +54,7 @@ export default function ProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       const url = editingProduct
         ? `/api/products/${editingProduct.id}`
@@ -78,6 +82,8 @@ export default function ProductsPage() {
       }
     } catch (error) {
       console.error("Error saving product:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -96,6 +102,7 @@ export default function ProductsPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+      setDeletingId(id);
       try {
         const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
         if (res.ok) {
@@ -103,6 +110,8 @@ export default function ProductsPage() {
         }
       } catch (error) {
         console.error("Error deleting product:", error);
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -142,10 +151,18 @@ export default function ProductsPage() {
             Ajoutez et gérez votre catalogue de médicaments
           </p>
         </div>
-        <Button onClick={openCreateForm}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouveau Produit
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={openCreateForm}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau Produit
+          </Button>
+          <Link href="/dualproduct">
+            <Button variant="outline">
+              <PackagePlus className="h-4 w-4 mr-2" />
+              Produit + Stock
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {showForm && (
@@ -233,13 +250,23 @@ export default function ProductsPage() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button type="submit">
-                  {editingProduct ? "Modifier" : "Créer"}
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {editingProduct ? "Modification..." : "Création..."}
+                    </>
+                  ) : editingProduct ? (
+                    "Modifier"
+                  ) : (
+                    "Créer"
+                  )}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setShowForm(false)}
+                  disabled={submitting}
                 >
                   Annuler
                 </Button>
@@ -273,6 +300,7 @@ export default function ProductsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleEdit(product)}
+                    disabled={deletingId === product.id}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -280,8 +308,13 @@ export default function ProductsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleDelete(product.id)}
+                    disabled={deletingId === product.id}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    {deletingId === product.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>

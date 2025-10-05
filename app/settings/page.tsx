@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [updatingUser, setUpdatingUser] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -40,6 +41,7 @@ export default function SettingsPage() {
   }, []);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
+    setUpdatingUser(userId);
     try {
       const res = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
@@ -51,6 +53,8 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error("Error updating user role:", error);
+    } finally {
+      setUpdatingUser(null);
     }
   };
 
@@ -118,17 +122,25 @@ export default function SettingsPage() {
                       <span className="text-sm font-medium">
                         {getRoleLabel(user.role)}
                       </span>
-                      <select
-                        value={user.role}
-                        onChange={(e) =>
-                          handleRoleChange(user.id, e.target.value)
-                        }
-                        className="p-1 border rounded text-sm"
-                      >
-                        <option value="EMPLOYE">Employé</option>
-                        <option value="AUDITEUR">Auditeur</option>
-                        <option value="GERANT">Gérant</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={user.role}
+                          onChange={(e) =>
+                            handleRoleChange(user.id, e.target.value)
+                          }
+                          disabled={updatingUser === user.id}
+                          className="p-1 border rounded text-sm disabled:opacity-50"
+                        >
+                          <option value="EMPLOYE">Employé</option>
+                          <option value="AUDITEUR">Auditeur</option>
+                          <option value="GERANT">Gérant</option>
+                        </select>
+                        {updatingUser === user.id && (
+                          <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
