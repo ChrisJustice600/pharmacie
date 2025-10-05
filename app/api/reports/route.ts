@@ -67,21 +67,25 @@ export async function GET(request: NextRequest) {
     let csv = "";
     if (type === "inventory") {
       csv = "Produit,Quantité,Date de péremption,Lot,Fournisseur\n";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data.forEach((item: any) => {
         csv += `"${item.product.name}",${item.quantity},"${new Date(item.expiration).toLocaleDateString()}","${item.lotNumber || ""}","${item.supplier || ""}"\n`;
       });
     } else if (type === "movements") {
       csv = "Date,Produit,Type,Quantité,Utilisateur,Raison,Référence\n";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data.forEach((item: any) => {
         csv += `"${new Date(item.createdAt).toLocaleString()}","${item.product.name}","${item.type}",${item.quantity},"${item.user.name}","${item.reason || ""}","${item.reference || ""}"\n`;
       });
     } else if (type === "alerts") {
       csv = "Date,Produit,Type,Message,Status\n";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data.forEach((item: any) => {
         csv += `"${new Date(item.createdAt).toLocaleString()}","${item.product.name}","${item.type}","${item.message}","${item.status}"\n`;
       });
     } else if (type === "expiring") {
       csv = "Produit,Quantité,Date de péremption,Lot,Fournisseur\n";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data.forEach((item: any) => {
         csv += `"${item.product.name}",${item.quantity},"${new Date(item.expiration).toLocaleDateString()}","${item.lotNumber || ""}","${item.supplier || ""}"\n`;
       });
