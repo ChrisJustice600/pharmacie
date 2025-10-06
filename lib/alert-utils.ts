@@ -59,7 +59,7 @@ export async function generateAlerts() {
           data: {
             productId: stock.productId,
             type: "EXPIRY_SOON",
-            message: `Péremption proche: ${new Date(stock.expiration).toLocaleDateString()}`,
+            message: `Péremption proche: ${stock.expiration ? new Date(stock.expiration).toLocaleDateString() : "Date inconnue"}`,
           },
         });
       }
@@ -87,7 +87,7 @@ export async function generateAlerts() {
           data: {
             productId: stock.productId,
             type: "EXPIRED",
-            message: `Produit périmé: ${new Date(stock.expiration).toLocaleDateString()}`,
+            message: `Produit périmé: ${stock.expiration ? new Date(stock.expiration).toLocaleDateString() : "Date inconnue"}`,
           },
         });
       }
