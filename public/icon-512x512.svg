@@ -1,0 +1,19 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="64" fill="#2563eb"/>
+  <rect x="96" y="96" width="320" height="320" rx="24" fill="white"/>
+  <rect x="128" y="128" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="192" y="128" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="256" y="128" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="320" y="128" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="128" y="208" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="192" y="208" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="256" y="208" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="320" y="208" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="128" y="288" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="192" y="288" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="256" y="288" width="48" height="64" rx="6" fill="#2563eb"/>
+  <rect x="320" y="288" width="48" height="64" rx="6" fill="#2563eb"/>
+  <circle cx="384" cy="384" r="48" fill="#10b981"/>
+  <path d="M368 384L380 396L408 368" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+  <text x="256" y="470" textAnchor="middle" fill="#2563eb" fontSize="24" fontWeight="bold">PharmaTrack</text>
+</svg>

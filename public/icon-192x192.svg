@@ -1,0 +1,18 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="24" fill="#2563eb"/>
+  <rect x="40" y="40" width="112" height="112" rx="8" fill="white"/>
+  <rect x="48" y="48" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="72" y="48" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="96" y="48" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="120" y="48" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="48" y="80" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="72" y="80" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="96" y="80" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="120" y="80" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="48" y="112" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="72" y="112" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="96" y="112" width="16" height="24" rx="2" fill="#2563eb"/>
+  <rect x="120" y="112" width="16" height="24" rx="2" fill="#2563eb"/>
+  <circle cx="144" cy="144" r="16" fill="#10b981"/>
+  <path d="M138 144L142 148L150 140" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+</svg>

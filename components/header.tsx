@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Skeleton } from "./ui/skeleton";
+import { PWAAssist } from "./pwa-install";
 
 export const Header = () => {
   return (
@@ -25,9 +26,12 @@ export const Header = () => {
         </h1>
       </div>
 
-      <Suspense fallback={<Skeleton className="h-9 w-20" />}>
-        <AuthButton />
-      </Suspense>
+      <div className="flex items-center gap-2">
+        <PWAAssist />
+        <Suspense fallback={<Skeleton className="h-9 w-20" />}>
+          <AuthButton />
+        </Suspense>
+      </div>
     </header>
   );
 };

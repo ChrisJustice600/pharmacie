@@ -25,6 +25,7 @@ const navigation = [
   { name: "Caisse", href: "/pos", icon: CreditCard },
   { name: "Produits", href: "/products", icon: Pill },
   { name: "Produit + Stock", href: "/dualproduct", icon: PlusCircle },
+  { name: "Archives", href: "/products/archive", icon: Package },
   { name: "Stocks", href: "/stocks", icon: Package },
   { name: "Alertes", href: "/alerts", icon: AlertTriangle },
   { name: "Inventaire", href: "/inventory", icon: ClipboardList },

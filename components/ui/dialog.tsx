@@ -60,4 +60,28 @@ const DialogClose: React.FC<{ onClick?: () => void; className?: string }> = ({
   </button>
 );
 
-export { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle };
+const DialogDescription: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = "" }) => (
+  <p className={`text-sm text-gray-600 mt-2 ${className}`}>{children}</p>
+);
+
+const DialogFooter: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className = "" }) => (
+  <div className={`flex justify-end gap-2 mt-6 ${className}`}>
+    {children}
+  </div>
+);
+
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+};

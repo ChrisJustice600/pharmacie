@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit, Loader2, Plus, Trash2, PackagePlus } from "lucide-react";
+import { Archive, Edit, Loader2, PackagePlus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
+import { MessageModal } from "@/components/ui/message-modal";
 
 interface Product {
   id: string;
@@ -25,6 +27,24 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // États pour les modales
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    product: Product | null;
+  }>({ isOpen: false, product: null });
+
+  const [archiveModal, setArchiveModal] = useState<{
+    isOpen: boolean;
+    product: Product | null;
+  }>({ isOpen: false, product: null });
+
+  const [messageModal, setMessageModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    variant: "success" | "error" | "warning" | "info";
+  }>({ isOpen: false, title: "", message: "", variant: "info" });
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -100,19 +120,96 @@ export default function ProductsPage() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
-      setDeletingId(id);
-      try {
-        const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
-        if (res.ok) {
-          fetchProducts();
+  const handleDelete = (product: Product) => {
+    setDeleteModal({ isOpen: true, product });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteModal.product) return;
+
+    const product = deleteModal.product;
+    setDeletingId(product.id);
+
+    try {
+      const res = await fetch(`/api/products/${product.id}`, { method: "DELETE" });
+      if (res.ok) {
+        const result = await res.json();
+        setMessageModal({
+          isOpen: true,
+          title: "Succès",
+          message: result.message || "Produit supprimé avec succès",
+          variant: "success",
+        });
+        fetchProducts();
+      } else {
+        const error = await res.json();
+
+        // Si le produit a des ventes, proposer l'archivage
+        if (res.status === 400 && error.error.includes("ventes associées")) {
+          setDeleteModal({ isOpen: false, product: null });
+          setArchiveModal({ isOpen: true, product });
+        } else {
+          setMessageModal({
+            isOpen: true,
+            title: "Erreur",
+            message: error.error || "Erreur lors de la suppression du produit",
+            variant: "error",
+          });
         }
-      } catch (error) {
-        console.error("Error deleting product:", error);
-      } finally {
-        setDeletingId(null);
       }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setMessageModal({
+        isOpen: true,
+        title: "Erreur",
+        message: "Erreur de connexion. Veuillez réessayer.",
+        variant: "error",
+      });
+    } finally {
+      setDeletingId(null);
+      setDeleteModal({ isOpen: false, product: null });
+    }
+  };
+
+  const confirmArchive = async () => {
+    if (!archiveModal.product) return;
+
+    const product = archiveModal.product;
+    setDeletingId(product.id);
+
+    try {
+      const res = await fetch(`/api/products/${product.id}?action=archive`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        const result = await res.json();
+        setMessageModal({
+          isOpen: true,
+          title: "Succès",
+          message: result.message || "Produit archivé avec succès",
+          variant: "success",
+        });
+        fetchProducts();
+      } else {
+        const error = await res.json();
+        setMessageModal({
+          isOpen: true,
+          title: "Erreur",
+          message: error.error || "Erreur lors de l'archivage du produit",
+          variant: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error archiving product:", error);
+      setMessageModal({
+        isOpen: true,
+        title: "Erreur",
+        message: "Erreur de connexion. Veuillez réessayer.",
+        variant: "error",
+      });
+    } finally {
+      setDeletingId(null);
+      setArchiveModal({ isOpen: false, product: null });
     }
   };
 
@@ -160,6 +257,12 @@ export default function ProductsPage() {
             <Button variant="outline">
               <PackagePlus className="h-4 w-4 mr-2" />
               Produit + Stock
+            </Button>
+          </Link>
+          <Link href="/products/archive">
+            <Button variant="outline">
+              <Archive className="h-4 w-4 mr-2" />
+              Archives
             </Button>
           </Link>
         </div>
@@ -307,8 +410,9 @@ export default function ProductsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDelete(product.id)}
+                    onClick={() => handleDelete(product)}
                     disabled={deletingId === product.id}
+                    title="Supprimer définitivement"
                   >
                     {deletingId === product.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -322,6 +426,47 @@ export default function ProductsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modales */}
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, product: null })}
+        onConfirm={confirmDelete}
+        title="Confirmation de suppression"
+        description={
+          deleteModal.product
+            ? `Êtes-vous sûr de vouloir supprimer définitivement le produit "${deleteModal.product.name}" ?\n\nCette action est irréversible et supprimera toutes les données associées.`
+            : ""
+        }
+        confirmText="Supprimer définitivement"
+        cancelText="Annuler"
+        variant="danger"
+        isLoading={deletingId === deleteModal.product?.id}
+      />
+
+      <ConfirmationModal
+        isOpen={archiveModal.isOpen}
+        onClose={() => setArchiveModal({ isOpen: false, product: null })}
+        onConfirm={confirmArchive}
+        title="Archivage du produit"
+        description={
+          archiveModal.product
+            ? `Le produit "${archiveModal.product.name}" a des ventes associées. Voulez-vous l'archiver à la place ?\n\nL'archivage préservera toutes les données historiques.`
+            : ""
+        }
+        confirmText="Archiver"
+        cancelText="Annuler"
+        variant="warning"
+        isLoading={deletingId === archiveModal.product?.id}
+      />
+
+      <MessageModal
+        isOpen={messageModal.isOpen}
+        onClose={() => setMessageModal({ isOpen: false, title: "", message: "", variant: "info" })}
+        title={messageModal.title}
+        message={messageModal.message}
+        variant={messageModal.variant}
+      />
     </div>
   );
 }
